@@ -30,6 +30,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['foto'])) {
         $error = "Gagal upload foto.";
     }
 }
+
+// Ambil semua user
+$all_users = mysqli_query($conn, "SELECT * FROM users");
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -43,22 +46,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['foto'])) {
             margin: 0;
             padding: 0;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
         }
 
         .container {
             background: #fff;
-            margin-top: 60px;
+            margin-top: 30px;
             padding: 30px 40px;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 500px;
+            width: 90%;
+            max-width: 800px;
         }
 
-        h2 {
-            margin-top: 0;
-            color: #333;
+        h2, h3 {
             text-align: center;
         }
 
@@ -115,6 +117,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['foto'])) {
             color: red;
             text-align: center;
         }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        table th, table td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        a.action {
+            color: #2980b9;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+
+        a.action:hover {
+            text-decoration: underline;
+        }
+
+        .top-action {
+            margin: 15px 0;
+            text-align: right;
+        }
     </style>
 </head>
 <body>
@@ -123,11 +157,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['foto'])) {
 
         <p><strong>Foto Profil:</strong></p>
         <?php if (!empty($user['photo'])): ?>
-    <img src="uploads/<?= htmlspecialchars((string) $user['photo']) ?>" width="150" height="150" alt="Foto Profil">
-    <?php else: ?>
-    <p style="text-align: center;">Belum ada foto.</p>
-    <?php endif; ?>
-
+            <img src="uploads/<?= htmlspecialchars($user['photo']) ?>" width="150" height="150" alt="Foto Profil">
+        <?php else: ?>
+            <p style="text-align: center;">Belum ada foto.</p>
+        <?php endif; ?>
 
         <div class="form-section">
             <form method="POST" enctype="multipart/form-data">
@@ -140,6 +173,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['foto'])) {
         <?php if (isset($error)): ?>
             <p class="error"><?= $error ?></p>
         <?php endif; ?>
+
+        <hr>
+
+        <h3>Daftar User</h3>
+        <div class="top-action">
+            <a href="tambah.php" class="action">+ Tambah User</a>
+        </div>
+
+        <table>
+            <tr>
+                <th>No</th>
+                <th>Username</th>
+                <th>Aksi</th>
+            </tr>
+            <?php $no = 1; while($row = mysqli_fetch_assoc($all_users)): ?>
+            <tr>
+                <td><?= $no++ ?></td>
+                <td><?= htmlspecialchars($row['username']) ?></td>
+                <td>
+                    <?php if ($row['username'] != $username): ?>
+                        <a href="edit.php?id=<?= $row['id'] ?>">Edit</a>
+                        <a class="action" href="delete.php?id=<?= $row['id'] ?>" onclick="return confirm('Yakin ingin menghapus user ini?')">Hapus</a>
+                    <?php else: ?>
+                        (Sedang login)
+                    <?php endif; ?>
+                </td>
+            </tr>
+            <?php endwhile; ?>
+        </table>
 
         <a class="logout" href="logout.php">Logout</a>
     </div>
